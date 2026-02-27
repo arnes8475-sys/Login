@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram - Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            background: #fafafa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .login-container {
+            display: flex;
+            gap: 40px;
+            max-width: 900px;
+            width: 100%;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Instagram Phone Mockup */
+        .phone-mockup {
+            display: none;
+            width: 280px;
+            height: 580px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 40px;
+            padding: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .phone-mockup::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 25px;
+            background: #000;
+            border-radius: 0 0 30px 30px;
+            z-index: 10;
+        }
+
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background: #fafafa;
+            border-radius: 35px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .carousel {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .carousel-item {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 0.6s ease-in-out;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .carousel-item.active {
+            opacity: 1;
+        }
+
+        .carousel-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Login Form */
+        .login-form {
+            width: 100%;
+            max-width: 350px;
+            background: white;
+            padding: 40px 20px;
+            border: 1px solid #dbdbdb;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .logo h1 {
+            font-size: 32px;
+            font-weight: 600;
+            background: linear-gradient(90deg, #000 0%, #333 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-family: 'Brush Script MT', cursive;
+            letter-spacing: -2px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #dbdbdb;
+            border-radius: 5px;
+            font-size: 14px;
+            background: #fafafa;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            background: white;
+            border-color: #999;
+            box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .form-group input::placeholder {
+            color: #999;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 8px;
+            background: linear-gradient(90deg, #4c93f9 0%, #4c93f9 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            margin-top: 25px;
+        }
+
+        .login-btn:hover {
+            background: linear-gradient(90deg, #0a66c2 0%, #0a66c2 100%);
+        }
+
+        .login-btn:active {
+            transform: scale(0.98);
+        }
+
+        .login-btn.loading {
+            background: linear-gradient(90deg, #888 0%, #888 100%);
+            cursor: not-allowed;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+            color: #999;
+            font-size: 13px;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #dbdbdb;
+        }
+
+        .divider span {
+            margin: 0 10px;
+            font-weight: 600;
+        }
+
+        .social-login {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .social-btn {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #dbdbdb;
+            background: white;
+            border-radius: 5px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            color: #262626;
+        }
+
+        .social-btn:hover {
+            background: #f7f7f7;
+        }
+
+        .forgot-password {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .forgot-password a {
+            color: #4c93f9;
+            text-decoration: none;
+            font-size: 12px;
+        }
+
+        .forgot-password a:hover {
+            text-decoration: underline;
+        }
+
+        .signup-link {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+            color: #262626;
+            border-top: 1px solid #dbdbdb;
+            padding-top: 15px;
+        }
+
+        .signup-link a {
+            color: #4c93f9;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .signup-link a:hover {
+            text-decoration: underline;
+        }
+
+        .error-message {
+            color: #ed4956;
+            font-size: 12px;
+            margin-top: 5px;
+            text-align: center;
+            display: none;
+        }
+
+        .success-message {
+            color: #31a24c;
+            font-size: 12px;
+            margin-top: 5px;
+            text-align: center;
+            display: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .login-container {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .phone-mockup {
+                display: block;
+            }
+
+            .login-form {
+                border: none;
+                box-shadow: none;
+                background: transparent;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .login-form {
+                max-width: 100%;
+                padding: 30px 15px;
+            }
+
+            .social-login {
+                flex-direction: column;
+            }
+
+            .phone-mockup {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <!-- Phone Mockup with Carousel -->
+        <div class="phone-mockup">
+            <div class="phone-screen">
+                <div class="carousel">
+                    <div class="carousel-item active">
+                        <span>Capture your moment 📸</span>
+                    </div>
+                    <div class="carousel-item">
+                        <span>Share with friends 👥</span>
+                    </div>
+                    <div class="carousel-item">
+                        <span>Explore & Inspire 🌟</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Login Form -->
+        <div class="login-form">
+            <div class="logo">
+                <h1>instagram</h1>
+            </div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <input 
+                        type="text" 
+                        id="email" 
+                        placeholder="Phone number, username, or email" 
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <input 
+                        type="password" 
+                        id="password" 
+                        placeholder="Password" 
+                        required
+                    >
+                </div>
+
+                <div class="error-message" id="errorMessage"></div>
+                <div class="success-message" id="successMessage"></div>
+
+                <button type="submit" class="login-btn" id="loginBtn">Log In</button>
+            </form>
+
+            <div class="divider">
+                <span>OR</span>
+            </div>
+
+            <div class="social-login">
+                <button class="social-btn" onclick="handleSocialLogin('facebook')">
+                    f Log in with Facebook
+                </button>
+                <button class="social-btn" onclick="handleSocialLogin('google')">
+                    🔍 Log in with Google
+                </button>
+            </div>
+
+            <div class="forgot-password">
+                <a href="#forgot-password">Forgotten your password?</a>
+            </div>
+
+            <div class="signup-link">
+                Don't have an account? <a href="#signup">Sign up</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Carousel animation
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.carousel-item');
+        const totalSlides = slides.length;
+
+        function showSlide(n) {
+            slides.forEach(slide => slide.classList.remove('active'));
+            slides[n].classList.add('active');
+        }
+
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % totalSlides;
+            showSlide(currentSlide);
+        }
+
+        // Change carousel slide every 5 seconds
+        setInterval(nextSlide, 5000);
+
+        // Form validation and submission
+        const loginForm = document.getElementById('loginForm');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const loginBtn = document.getElementById('loginBtn');
+        const errorMessage = document.getElementById('errorMessage');
+        const successMessage = document.getElementById('successMessage');
+
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const email = emailInput.value.trim();
+            const password = passwordInput.value.trim();
+
+            // Clear messages
+            errorMessage.style.display = 'none';
+            successMessage.style.display = 'none';
+
+            // Validation
+            if (!email) {
+                showError('Please enter your phone number, username, or email.');
+                return;
+            }
+
+            if (!password) {
+                showError('Please enter your password.');
+                return;
+            }
+
+            if (password.length < 6) {
+                showError('Password must be at least 6 characters.');
+                return;
+            }
+
+            // Simulate login
+            loginBtn.classList.add('loading');
+            loginBtn.textContent = 'Logging in...';
+
+            setTimeout(() => {
+                // Demo: Simple validation
+                if (email === 'demo@example.com' && password === 'password') {
+                    showSuccess('Login successful! Redirecting...');
+                    setTimeout(() => {
+                        // Redirect to home page (demo)
+                        window.location.href = '#home';
+                    }, 1500);
+                } else if (email.includes('@') || /^
+                d+$/.test(email.charAt(0))) {
+                    showSuccess('Login successful! Redirecting...');
+                    setTimeout(() => {
+                        window.location.href = '#home';
+                    }, 1500);
+                } else {
+                    showError('Sorry, your password was incorrect. Please double-check it.');
+                }
+
+                loginBtn.classList.remove('loading');
+                loginBtn.textContent = 'Log In';
+            }, 1500);
+        });
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+        }
+
+        function showSuccess(message) {
+            successMessage.textContent = message;
+            successMessage.style.display = 'block';
+        }
+
+        // Handle social login
+        function handleSocialLogin(provider) {
+            alert(`Logging in with ${provider}...`);
+            // In a real app, this would redirect to OAuth provider
+        }
+
+        // Input focus effects
+        emailInput.addEventListener('focus', function() {
+            this.parentElement.style.borderColor = '#999';
+        });
+
+        emailInput.addEventListener('blur', function() {
+            this.parentElement.style.borderColor = '#dbdbdb';
+        });
+
+        passwordInput.addEventListener('focus', function() {
+            this.parentElement.style.borderColor = '#999';
+        });
+
+        passwordInput.addEventListener('blur', function() {
+            this.parentElement.style.borderColor = '#dbdbdb';
+        });
+    </script>
+</body>
+</html>
